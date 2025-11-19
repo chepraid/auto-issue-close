@@ -7,8 +7,13 @@ on:
 jobs:
   close-issue:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     
     steps:
+      - name: Debug - Print label name
+        run: echo "Label added: ${{ github.event.label.name }}"
+      
       - name: Check if label is 'completed' or 'wontfix'
         id: check-label
         run: |
