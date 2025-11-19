@@ -1,0 +1,31 @@
+name: Close Labeled Issues
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  close-issue:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check if label is 'completed' or 'wontfix'
+        id: check-label
+        run: |
+          if [[ "${{ github.event.label.name }}" == "completed" || "${{ github.event.label.name }}" == "wontfix" ]]; then
+            echo "should_close=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_close=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Close issue
+        if: steps.check-label.outputs.should_close == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: 'closed'
+            })
